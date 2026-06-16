@@ -2,8 +2,8 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { startChat, sendMessage, ChatResponse } from "@/lib/api";
+import { useState, useEffect, useRef } from "react";
+import { startChat, sendMessage, ChatResponse, transcribeVoice } from "@/lib/api";
 
 type ConversationState = "idle" | "loading" | "active" | "done";
 
@@ -15,6 +15,10 @@ export default function ChatPage() {
     const [userInput, setUserInput] = useState<string>("");
     const [result, setResult] = useState<ChatResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const [isTranscribing, setIsTranscribing] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
 
     useEffect(() => {
         handleStart();
@@ -59,13 +63,57 @@ export default function ChatPage() {
         }
     }
 
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunksRef.current.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                stream.getTracks().forEach((track) => track.stop());
+                await handleTranscription(audioBlob);
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+        } catch (err) {
+            setError("Microphone access was denied or unavailable.");
+        }
+    }
+
+    function stopRecording() {
+        mediaRecorderRef.current?.stop();
+        setIsRecording(false);
+    }
+
+    async function handleTranscription(audioBlob: Blob) {
+        if (!sessionId) return;
+        setIsTranscribing(true);
+        setError(null);
+
+        try {
+            const result = await transcribeVoice(sessionId, audioBlob);
+            setUserInput(result.transcript);
+        } catch (err) {
+            setError("Could not transcribe audio. Please try typing instead.");
+        } finally {
+            setIsTranscribing(false);
+        }
+    }
+
     if (state === "done" && result) {
         return (
             <main className="min-h-screen flex items-center justify-center bg-white px-4">
                 <div
                     className={`max-w-md w-full rounded-lg p-6 ${result.is_emergency
-                            ? "bg-red-50 border border-red-400"
-                            : "bg-white border border-slate-200"
+                        ? "bg-red-50 border border-red-400"
+                        : "bg-white border border-slate-200"
                         }`}
                 >
                     <p
@@ -96,12 +144,43 @@ export default function ChatPage() {
                     {currentQuestion}
                 </p>
 
-                <textarea
-                    value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
-                    placeholder="Type your answer"
-                    className="w-full min-h-[70px] border border-slate-300 rounded-md p-3 text-sm bg-slate-50 text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
+                <div className="flex gap-2 items-stretch">
+                    <textarea
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        placeholder={isRecording ? "Listening..." : isTranscribing ? "Transcribing..." : "Type your answer"}
+                        className={`flex-1 min-h-[64px] border rounded-md p-3 text-sm resize-none focus:outline-none focus:ring-2 transition-colors ${isRecording
+                                ? "bg-red-50 border-red-300 text-red-900 placeholder-red-400 focus:ring-red-200"
+                                : "bg-slate-50 border-slate-300 text-slate-800 focus:ring-blue-200"
+                            }`}
+                    />
+                    <button
+                        onClick={isRecording ? stopRecording : startRecording}
+                        disabled={isTranscribing}
+                        className={`w-16 rounded-md flex items-center justify-center transition-colors flex-shrink-0 ${isRecording
+                                ? "bg-red-600 hover:bg-red-700"
+                                : "bg-slate-50 border border-slate-300 hover:bg-slate-100"
+                            }`}
+                    >
+                        {isRecording ? (
+                            <div className="w-3 h-3 bg-white rounded-sm" />
+                        ) : (
+                            <svg
+                                className="w-5 h-5 text-blue-800"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8M12 1a3 3 0 00-3 3v7a3 3 0 006 0V4a3 3 0 00-3-3z"
+                                />
+                            </svg>
+                        )}
+                    </button>
+                </div>
 
                 {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
 
