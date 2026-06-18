@@ -24,3 +24,39 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes travel-dot {
+  0% {
+    left: -25%;
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  35% {
+    left: 35%;
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+
+  65% {
+    left: 35%;
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+
+  85% {
+    opacity: 1;
+  }
+
+  100% {
+    left: 60%;
+    opacity: 0;
+  }
+}
+
+.animate-travel-dot {
+  animation: travel-dot 2.2s ease-in-out infinite;
+}
