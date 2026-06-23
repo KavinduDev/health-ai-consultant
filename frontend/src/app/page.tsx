@@ -8,7 +8,7 @@ export default function Home() {
     <main className="min-h-screen flex relative">
       <div className="md:hidden absolute inset-0">
         <Image
-          src="/stethoscope.jpg"
+          src="/stethoscope.webp"
           alt=""
           fill
           className="object-cover opacity-40"
@@ -18,7 +18,7 @@ export default function Home() {
 
       <div className="hidden md:flex relative w-1/2 items-center justify-center bg-white border-r border-slate-600">
         <Image
-          src="/stethoscope.jpg"
+          src="/stethoscope.webp"
           alt="Stethoscope and medical equipment"
           fill
           className="object-cover"
