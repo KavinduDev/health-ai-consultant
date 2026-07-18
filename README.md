@@ -79,6 +79,13 @@ When emergency symptoms are described, the system responds immediately with a di
 
 ---
 
+### 10. Result — Emergency Call Confirmation
+Clicking "Call emergency services" reveals two direct call options with tel: links.
+
+![Emergency call confirmation showing Call Ambulance 1990 and Call Police 119](screenshots/result_emergencyv1.PNG)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Why |
