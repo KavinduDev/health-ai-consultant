@@ -65,17 +65,17 @@ Once spoken playback finishes, the navigation button becomes active and the user
 
 ---
 
-### 8. Result — Emergency Detected
-When emergency symptoms are described, the system responds immediately with a distinct red card. Contact numbers and estimated arrival times are displayed. The "Call emergency services" button expands to show specific service options.
+### 8. Emergency Flow — Symptom Input (Round 1)
+Classic heart attack warning signs entered at round 1. The system detects this immediately on the same round without waiting for further questions, demonstrating the safety-critical emergency detection fix.
 
-![Emergency card with red styling, contact numbers and Call emergency services button](screenshots/result_emergency.PNG)
+![Round 1 showing emergency chest pain symptoms typed in input field](screenshots/chat-emergency-round-1.PNG)
 
 ---
 
-### 9. Result — Emergency Call Confirmation
-Clicking "Call emergency services" reveals two direct call options with `tel:` links that trigger the device's native dialler on mobile.
+### 9. Result — Emergency Detected
+When emergency symptoms are described, the system responds immediately with a distinct red card. Contact numbers and estimated arrival times are displayed. The "Call emergency services" button expands to show specific service options.
 
-![Emergency call confirmation showing Call Ambulance 1990 and Call Police 119 options](screenshots/result_emergencyv1.PNG)
+![Emergency card with red styling, contact numbers and Call emergency services button](screenshots/result_emergency.PNG)
 
 ---
 
